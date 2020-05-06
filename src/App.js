@@ -29,7 +29,7 @@ class App extends Component {
     super();
     this.state = { 
       answers: [],
-      message: 'กรุณาเลือกคำตอบที่ถูกต้อง'
+      message: 'Please choose the correct answer.',
     };
     this.onInput = this.onInput.bind(this);
     this.buildRadioButtons = this.buildRadioButtons.bind(this);
@@ -42,7 +42,7 @@ class App extends Component {
           myQuestions.map((data, i) => {
             const { question, answers, correctAnswer,} = data;
             return (
-              <div key={i}>
+              <div key={i} onChange={this.checkUserAnswerAllQuestion}>
                 <h3>{question}</h3>
                 {this.buildRadioButtons(answers, correctAnswer, question)}
               </div>
@@ -71,27 +71,39 @@ class App extends Component {
     }
   
   onInput = (e) => {
-    const id = e.target.name;
-    const answer = { id, answer: e.target.value };
-    let answers;
+    const id = e.target.name
+    const answer = { id, answer: e.target.value }
+    let answers
     (this.state.answers.some(answer => answer.id === id))?
     answers = [...this.state.answers.filter(answer => answer.id !== id), answer]:answers = [...this.state.answers, answer];
-    this.setState({ answers });
+    this.setState({ answers }, () => this.checkUserAnswerAllQuestion());
   }
 
-  checkUserAnswerAllQuestion =()=> {
-
+  checkUserAnswerAllQuestion = ()=> {
+    let quesionList = ['1 + 2 is ?','What is the best site for Web Programmer ?','Who is Prime minister fo Thailand ?']
+    let quesionUserDo = []
+    let quesionUserNotDo = ''
+    try {
+      this.state.answers.forEach( async element => {
+        await quesionUserDo.push(element.id)
+      });
+      quesionUserDo = [...new Set(quesionUserDo)]
+      quesionUserNotDo = quesionList.filter(e => !quesionUserDo.includes(e)).toString()
+      this.setState({message: `Not Done:${quesionUserNotDo}` })
+    } catch (error) {
+      console.error(error)
+    }
   }
-  
+
   checkAnswer =(e)=> {
-    e.preventDefault();
+    e.preventDefault()
     myQuestions.forEach((element,i) => {
       if(this.state.answers[i].answer.toString() === element.correctAnswer.toString()) {
         this.setState({ message: 'All of the above'})
       }else {
         this.setState({ message: 'Have a mistake'})
       }
-    });
+    })
   }
 
 }
